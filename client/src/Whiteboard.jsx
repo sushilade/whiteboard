@@ -7,7 +7,7 @@ const SIGNALING_URL =
   import.meta.env.VITE_SIGNALING_URL || window.location.origin;
 
 export default function Whiteboard({ role, name, roomId }) {
-   const svgRef = useRef(null);
+  const svgRef = useRef(null);
   const socketRef = useRef(null);
   const pcRef = useRef(null);
   const dataChannelRef = useRef(null);
