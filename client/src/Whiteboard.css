@@ -131,3 +131,23 @@
   font-size: 0.85rem;
   color: #94a3b8;
 }
+
+.teacher-video {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 200px;
+  height: 200px;
+  border-radius: 8px;
+  border: 2px solid #38bdfa;
+  background: #000;
+  object-fit: cover;
+  z-index: 10;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.teacher-video video {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+}

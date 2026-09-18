@@ -7,7 +7,7 @@ const SIGNALING_URL =
   import.meta.env.VITE_SIGNALING_URL || window.location.origin;
 
 export default function Whiteboard({ role, name, roomId }) {
-  const svgRef = useRef(null);
+   const svgRef = useRef(null);
   const socketRef = useRef(null);
   const pcRef = useRef(null);
   const dataChannelRef = useRef(null);
@@ -16,8 +16,11 @@ export default function Whiteboard({ role, name, roomId }) {
   const strokesRef = useRef([]);
   const remotePeerRef = useRef(null);
   const useDataChannelRef = useRef(false);
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+  const localStreamRef = useRef(null);
 
-   const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [status, setStatus] = useState('Connecting...');
   const [teacherOnline, setTeacherOnline] = useState(false);
   const [students, setStudents] = useState([]);
@@ -97,6 +100,9 @@ export default function Whiteboard({ role, name, roomId }) {
       dataChannelRef.current?.close();
       pcRef.current?.close();
       socket.disconnect();
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((t) => t.stop());
+      }
     };
   }, []);
 
@@ -139,10 +145,32 @@ export default function Whiteboard({ role, name, roomId }) {
       };
     };
 
+    pc.ontrack = (event) => {
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = event.streams[0];
+      }
+    };
+
     return Promise.resolve();
   }
 
-  async function handleNewStudent(studentSocketId, studentName) {
+   async function handleNewStudent(studentSocketId, studentName) {
+    if (!localStreamRef.current) {
+      try {
+        localStreamRef.current = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: false
+        });
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = localStreamRef.current;
+          localVideoRef.current.muted = true;
+        }
+      } catch (e) {
+        console.warn('Camera access denied:', e);
+        setStatus('Camera access denied');
+      }
+    }
+
     const pc = new RTCPeerConnection(PEER_CONFIG);
     pcRef.current = pc;
     remotePeerRef.current = studentSocketId;
@@ -174,6 +202,12 @@ export default function Whiteboard({ role, name, roomId }) {
         redraw();
       }
     };
+
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((track) => {
+        pc.addTrack(track, localStreamRef.current);
+      });
+    }
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
@@ -339,6 +373,23 @@ export default function Whiteboard({ role, name, roomId }) {
           className={`whiteboard-area ${role === 'student' ? 'student' : ''}`}
         >
           <svg ref={svgRef} className="whiteboard-svg"></svg>
+
+          <video
+            ref={localVideoRef}
+            className="teacher-video"
+            autoPlay
+            playsInline
+            muted
+            style={{ display: role === 'teacher' ? 'block' : 'none' }}
+          />
+
+          <video
+            ref={remoteVideoRef}
+            className="teacher-video"
+            autoPlay
+            playsInline
+            style={{ display: role === 'student' ? 'block' : 'none' }}
+          />
         </div>
 
         <div className="sidebar">
