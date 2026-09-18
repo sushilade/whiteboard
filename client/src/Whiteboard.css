@@ -1,0 +1,100 @@
+.whiteboard-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+.whiteboard-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1e293b;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid #334159;
+  flex-shrink: 0;
+}
+
+.toolbar-left .role-badge {
+  background: #0f172a;
+  color: #38bdfa;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #64748b;
+  display: inline-block;
+}
+
+.status-dot.online {
+  background: #22c55e;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.status-text {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.clear-button {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.clear-button:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.clear-button:disabled {
+  background: #334159;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.whiteboard-area {
+  flex: 1;
+  position: relative;
+  cursor: crosshair;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.whiteboard-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.student-overlay {
+  background: rgba(15, 23, 42, 0.95);
+  padding: 0.5rem 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}

@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: whiteboard-server
+    env:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+    build:
+      dockerfilePath: server/Dockerfile

@@ -1,0 +1,14 @@
+{
+  "name": "whiteboard-server",
+  "version": "1.0.0",
+  "description": "Socket.IO signaling server for WebRTC whiteboard",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.1",
+    "express": "^4.21.2"
+  }
+}

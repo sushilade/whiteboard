@@ -1,0 +1,11 @@
+node_modules/
+client/dist/
+.vscode/
+.idea/
+*.log
+npm-debug.log*
+.DS_Store
+.env
+.env.local
+.env.development
+.env.production
