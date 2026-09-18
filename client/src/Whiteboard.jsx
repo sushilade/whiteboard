@@ -4,8 +4,7 @@ import { PEER_CONFIG } from './Login.jsx';
 import './Whiteboard.css';
 
 const SIGNALING_URL =
-  import.meta.env.VITE_SIGNALING_URL ||
-  (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin);
+  import.meta.env.VITE_SIGNALING_URL || window.location.origin;
 
 export default function Whiteboard({ role, name, roomId }) {
   const svgRef = useRef(null);
