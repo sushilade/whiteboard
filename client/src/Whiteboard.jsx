@@ -19,11 +19,13 @@ export default function Whiteboard({ role, name, roomId }) {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const localStreamRef = useRef(null);
+  const videoSendersRef = useRef([]);
 
   const [isConnected, setIsConnected] = useState(false);
   const [status, setStatus] = useState('Connecting...');
   const [teacherOnline, setTeacherOnline] = useState(false);
   const [students, setStudents] = useState([]);
+  const [videoEnabled, setVideoEnabled] = useState(false);
 
   useEffect(() => {
     const socket = io(SIGNALING_URL, { transports: ['websocket'] });
@@ -151,6 +153,12 @@ export default function Whiteboard({ role, name, roomId }) {
       }
     };
 
+    pc.onremovetrack = (event) => {
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = null;
+      }
+    };
+
     return Promise.resolve();
   }
 
@@ -165,6 +173,7 @@ export default function Whiteboard({ role, name, roomId }) {
           localVideoRef.current.srcObject = localStreamRef.current;
           localVideoRef.current.muted = true;
         }
+        setVideoEnabled(true);
       } catch (e) {
         console.warn('Camera access denied:', e);
         setStatus('Camera access denied');
@@ -204,14 +213,63 @@ export default function Whiteboard({ role, name, roomId }) {
     };
 
     if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => {
-        pc.addTrack(track, localStreamRef.current);
+      const senders = localStreamRef.current.getTracks().map((track) => {
+        return pc.addTrack(track, localStreamRef.current);
       });
+      videoSendersRef.current = senders;
     }
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     socketRef.current.emit('offer', { to: studentSocketId, offer });
+  }
+
+  async function toggleVideo() {
+    if (!pcRef.current || videoSendersRef.current.length === 0) return;
+
+    if (videoEnabled) {
+      const senders = await pcRef.current.getSenders();
+      const videoSenders = senders.filter(
+        (s) => s.track && s.track.kind === 'video'
+      );
+      for (const sender of videoSenders) {
+        await sender.replaceTrack(null);
+      }
+      videoSendersRef.current = [];
+      setVideoEnabled(false);
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = null;
+      }
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: false
+        });
+        localStreamRef.current = stream;
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+          localVideoRef.current.muted = true;
+        }
+
+        const senders = await pcRef.current.getSenders();
+        const videoSenders = senders.filter(
+          (s) => s.track && s.track.kind === 'video'
+        );
+        let i = 0;
+        for (const track of stream.getVideoTracks()) {
+          if (i < videoSenders.length) {
+            await videoSenders[i].replaceTrack(track);
+            i++;
+          }
+        }
+        videoSendersRef.current = videoSenders.slice(0, i);
+        setVideoEnabled(true);
+      } catch (e) {
+        console.warn('Camera access denied:', e);
+        setStatus('Camera access denied');
+      }
+    }
   }
 
   function sendViaChannel(type, payload) {
@@ -365,6 +423,16 @@ export default function Whiteboard({ role, name, roomId }) {
           >
             Clear
           </button>
+
+          {role === 'teacher' && (
+            <button
+              className={`camera-button ${videoEnabled ? 'on' : 'off'}`}
+              onClick={toggleVideo}
+              title={videoEnabled ? 'Turn camera off' : 'Turn camera on'}
+            >
+              {videoEnabled ? '📹 On' : '📹 Off'}
+            </button>
+          )}
         </div>
       </div>
 
