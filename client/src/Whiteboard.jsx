@@ -373,23 +373,6 @@ export default function Whiteboard({ role, name, roomId }) {
           className={`whiteboard-area ${role === 'student' ? 'student' : ''}`}
         >
           <svg ref={svgRef} className="whiteboard-svg"></svg>
-
-          <video
-            ref={localVideoRef}
-            className="teacher-video"
-            autoPlay
-            playsInline
-            muted
-            style={{ display: role === 'teacher' ? 'block' : 'none' }}
-          />
-
-          <video
-            ref={remoteVideoRef}
-            className="teacher-video"
-            autoPlay
-            playsInline
-            style={{ display: role === 'student' ? 'block' : 'none' }}
-          />
         </div>
 
         <div className="sidebar">
@@ -402,6 +385,23 @@ export default function Whiteboard({ role, name, roomId }) {
               {teacherOnline ? 'Online' : 'Offline'}
             </div>
           </div>
+
+          <video
+            ref={localVideoRef}
+            className="teacher-video-sidebar"
+            autoPlay
+            playsInline
+            muted
+            style={{ display: role === 'teacher' ? 'block' : 'none' }}
+          />
+
+          <video
+            ref={remoteVideoRef}
+            className="teacher-video-sidebar"
+            autoPlay
+            playsInline
+            style={{ display: role === 'student' ? 'block' : 'none' }}
+          />
 
           {role === 'teacher' && (
             <>
