@@ -17,8 +17,10 @@ export default function Whiteboard({ role, name, roomId }) {
   const remotePeerRef = useRef(null);
   const useDataChannelRef = useRef(false);
 
-  const [isConnected, setIsConnected] = useState(false);
+   const [isConnected, setIsConnected] = useState(false);
   const [status, setStatus] = useState('Connecting...');
+  const [teacherOnline, setTeacherOnline] = useState(false);
+  const [students, setStudents] = useState([]);
 
   useEffect(() => {
     const socket = io(SIGNALING_URL, { transports: ['websocket'] });
@@ -46,7 +48,13 @@ export default function Whiteboard({ role, name, roomId }) {
     });
 
     socket.on('teacher-disconnected', () => {
+      setTeacherOnline(false);
       setStatus('Teacher left the room');
+    });
+
+    socket.on('room-users', ({ teacher, students }) => {
+      setTeacherOnline(!!teacher);
+      setStudents(students || []);
     });
 
     socket.on('offer', async ({ from, offer }) => {
@@ -326,8 +334,59 @@ export default function Whiteboard({ role, name, roomId }) {
         </div>
       </div>
 
-      <div className="whiteboard-area">
-        <svg ref={svgRef} className="whiteboard-svg"></svg>
+      <div className="whiteboard-layout">
+        <div
+          className={`whiteboard-area ${role === 'student' ? 'student' : ''}`}
+        >
+          <svg ref={svgRef} className="whiteboard-svg"></svg>
+        </div>
+
+        <div className="sidebar">
+          <h3>Room Info</h3>
+          <div className="teacher-status">
+            <div className="label">Teacher</div>
+            <div
+              className={`value ${teacherOnline ? 'online' : 'offline'}`}
+            >
+              {teacherOnline ? 'Online' : 'Offline'}
+            </div>
+          </div>
+
+          {role === 'teacher' && (
+            <>
+              <div className="connection-info">
+                <div className="label">WebRTC Data Channel</div>
+                <div className="value">
+                  {isConnected ? 'Connected' : 'Waiting for students...'}
+                </div>
+              </div>
+
+              <h3>Students ({students.length})</h3>
+              <div className="student-list">
+                {students.length === 0 ? (
+                  <span className="student-item">No students connected</span>
+                ) : (
+                  students.map((student, i) => (
+                    <span key={i} className="student-item">
+                      {student}
+                    </span>
+                  ))
+                )}
+              </div>
+            </>
+          )}
+
+          {role === 'student' && teacherOnline && (
+            <div className="connection-info">
+              <div className="label">Connection</div>
+              <div className="value">
+                {isConnected
+                  ? 'Connected to teacher'
+                  : 'Connecting...'}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

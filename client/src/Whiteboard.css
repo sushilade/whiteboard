@@ -16,72 +16,105 @@
   flex-shrink: 0;
 }
 
-.toolbar-left .role-badge {
-  background: #0f172a;
-  color: #38bdfa;
-  padding: 0.4rem 0.9rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.toolbar-right {
+.whiteboard-layout {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #64748b;
-  display: inline-block;
-}
-
-.status-dot.online {
-  background: #22c55e;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.status-text {
-  font-size: 0.85rem;
-  color: #94a3b8;
-}
-
-.clear-button {
-  background: #ef4444;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 0.45rem 1rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.clear-button:hover:not(:disabled) {
-  background: #dc2626;
-}
-
-.clear-button:disabled {
-  background: #334159;
-  color: #64748b;
-  cursor: not-allowed;
+  flex: 1;
+  height: calc(100vh - 56px);
 }
 
 .whiteboard-area {
-  flex: 1;
+  flex: 0 0 80%;
   position: relative;
   cursor: crosshair;
   background: #ffffff;
   overflow: hidden;
+  border-right: 1px solid #334159;
+}
+
+.whiteboard-area.student {
+  pointer-events: none;
+}
+
+.sidebar {
+  flex: 0 0 20%;
+  background: #1e293b;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sidebar h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.teacher-status {
+  background: #0f172a;
+  border: 1px solid #334159;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+}
+
+.teacher-status .label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.teacher-status .value {
+  font-size: 0.95rem;
+  color: #f1f5f9;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.teacher-status .online {
+  color: #22c55e;
+}
+
+.teacher-status .offline {
+  color: #ef4444;
+}
+
+.connection-info {
+  background: #0f172a;
+  border: 1px solid #334159;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+}
+
+.connection-info .label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.connection-info .value {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  margin-top: 0.25rem;
+}
+
+.student-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.student-item {
+  background: #0f172a;
+  border: 1px solid #334159;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  color: #cbd5e1;
 }
 
 .whiteboard-svg {
