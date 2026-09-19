@@ -22,18 +22,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '20'
+          cache: 'npm'
 
-       - name: Install dependencies
-         run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-       - name: Build client
-         env:
-           BASE_URL: /whiteboard/
-           VITE_SIGNALING_URL: ${{ secrets.SIGNALING_URL }}
-         run: npm run build
+      - name: Build client
+        env:
+          BASE_URL: /whiteboard/
+          VITE_SIGNALING_URL: ${{ secrets.SIGNALING_URL }}
+        run: npx vite build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
