@@ -26,19 +26,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install root dependencies
-        run: npm ci
+       - name: Install dependencies
+         run: npm ci
 
-      - name: Install server dependencies and build
-        run: |
-          cd server
-          npm ci
-
-      - name: Install and build client
-        env:
-          BASE_URL: /whiteboard/
-          VITE_SIGNALING_URL: ${{ secrets.SIGNALING_URL }}
-        run: npm run build
+       - name: Build client
+         env:
+           BASE_URL: /whiteboard/
+           VITE_SIGNALING_URL: ${{ secrets.SIGNALING_URL }}
+         run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
