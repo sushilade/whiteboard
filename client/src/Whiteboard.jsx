@@ -474,6 +474,7 @@ export default function Whiteboard({ role, name, roomId }) {
             className="teacher-video-sidebar"
             autoPlay
             playsInline
+            style={{ display: role === 'student' ? 'block' : 'none' }}
           />
 
           {role === 'teacher' && (
