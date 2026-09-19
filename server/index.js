@@ -83,6 +83,10 @@ io.on('connection', (socket) => {
     io.to(to).emit('ice-candidate', { from: socket.id, candidate });
   });
 
+  socket.on('video-state', ({ roomId, enabled }) => {
+    socket.to(roomId).emit('video-state', { enabled });
+  });
+
   socket.on('stroke', ({ roomId, stroke }) => {
     const room = getRoom(roomId);
     room.strokes.push(stroke);

@@ -98,6 +98,14 @@ export default function Whiteboard({ role, name, roomId }) {
       }
     });
 
+    socket.on('video-state', ({ enabled }) => {
+      if (remoteVideoRef.current) {
+        if (!enabled) {
+          remoteVideoRef.current.srcObject = null;
+        }
+      }
+    });
+
     return () => {
       dataChannelRef.current?.close();
       pcRef.current?.close();
@@ -150,9 +158,7 @@ export default function Whiteboard({ role, name, roomId }) {
     pc.ontrack = (event) => {
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0];
-        const hasVideo =
-          event.streams[0].getVideoTracks().length > 0;
-        remoteVideoRef.current.style.display = hasVideo ? 'block' : 'none';
+        remoteVideoRef.current.style.display = 'block';
       }
     };
 
@@ -239,6 +245,7 @@ export default function Whiteboard({ role, name, roomId }) {
         localStreamRef.current.getTracks().forEach((t) => t.stop());
       }
       localStreamRef.current = null;
+      socketRef.current.emit('video-state', { roomId, enabled: false });
     } else {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -263,6 +270,7 @@ export default function Whiteboard({ role, name, roomId }) {
           }
         }
         setVideoEnabled(true);
+        socketRef.current.emit('video-state', { roomId, enabled: true });
       } catch (e) {
         console.warn('Camera access denied:', e);
         setStatus('Camera access denied');
@@ -466,7 +474,6 @@ export default function Whiteboard({ role, name, roomId }) {
             className="teacher-video-sidebar"
             autoPlay
             playsInline
-            style={{ display: role === 'student' ? 'block' : 'none' }}
           />
 
           {role === 'teacher' && (
