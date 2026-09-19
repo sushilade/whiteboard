@@ -150,12 +150,9 @@ export default function Whiteboard({ role, name, roomId }) {
     pc.ontrack = (event) => {
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0];
-      }
-    };
-
-    pc.onremovetrack = (event) => {
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = null;
+        const hasVideo =
+          event.streams[0].getVideoTracks().length > 0;
+        remoteVideoRef.current.style.display = hasVideo ? 'block' : 'none';
       }
     };
 
@@ -225,21 +222,23 @@ export default function Whiteboard({ role, name, roomId }) {
   }
 
   async function toggleVideo() {
-    if (!pcRef.current || videoSendersRef.current.length === 0) return;
+    if (!pcRef.current) return;
 
     if (videoEnabled) {
       const senders = await pcRef.current.getSenders();
-      const videoSenders = senders.filter(
-        (s) => s.track && s.track.kind === 'video'
-      );
-      for (const sender of videoSenders) {
-        await sender.replaceTrack(null);
+      for (const sender of senders) {
+        if (sender.track && sender.track.kind === 'video') {
+          await sender.replaceTrack(null);
+        }
       }
-      videoSendersRef.current = [];
       setVideoEnabled(false);
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = null;
       }
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((t) => t.stop());
+      }
+      localStreamRef.current = null;
     } else {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -253,17 +252,16 @@ export default function Whiteboard({ role, name, roomId }) {
         }
 
         const senders = await pcRef.current.getSenders();
-        const videoSenders = senders.filter(
-          (s) => s.track && s.track.kind === 'video'
-        );
+        const nullSenders = senders.filter((s) => s.track === null);
         let i = 0;
         for (const track of stream.getVideoTracks()) {
-          if (i < videoSenders.length) {
-            await videoSenders[i].replaceTrack(track);
+          if (i < nullSenders.length) {
+            await nullSenders[i].replaceTrack(track);
             i++;
+          } else {
+            await pcRef.current.addTrack(track, stream);
           }
         }
-        videoSendersRef.current = videoSenders.slice(0, i);
         setVideoEnabled(true);
       } catch (e) {
         console.warn('Camera access denied:', e);
@@ -460,7 +458,7 @@ export default function Whiteboard({ role, name, roomId }) {
             autoPlay
             playsInline
             muted
-            style={{ display: role === 'teacher' ? 'block' : 'none' }}
+            style={{ display: role === 'teacher' && videoEnabled ? 'block' : 'none' }}
           />
 
           <video
