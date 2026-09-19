@@ -11,7 +11,7 @@
     "dev:server": "npm start --workspace=server",
     "dev:client": "npm start --workspace=client",
     "dev": "npm run dev:server & npm run dev:client",
-    "build": "npm run build --workspace=client",
+    "build": "vite build",
     "start": "npm start --workspace=server"
   },
   "engines": {
